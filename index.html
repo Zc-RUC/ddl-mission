@@ -17,12 +17,23 @@
   --dim: #8a8a8a;
   --faint: #3a3a3a;
   --line: #2c2c2c;
+  --panel: rgba(0,0,0,.72);
+  --input-bg: #0d0d0d;
+  --accent: #e8e8e8;
+  --ring-track: #2c2c2c;
+  --ring-fg: #e8e8e8;
+  --radius: 0px;
+  --btn-radius: 0px;
+  --font: 'Fusion Pixel', monospace;
+  --font-h: var(--font);
+  --invert-pixel: none;
+  --moon-filter: drop-shadow(0 0 14px rgba(255,255,255,.16));
 }
 html { background: var(--bg); }
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Fusion Pixel', monospace;
+  font-family: var(--font);
   font-size: 15px;
   line-height: 1.6;
   min-height: 100vh;
@@ -51,7 +62,7 @@ nav a:hover { border-bottom: 1px solid var(--fg); }
   display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px;
   align-items: center; padding: 64px 0 48px;
 }
-h1 { font-size: 44px; font-weight: normal; letter-spacing: 2px; }
+h1 { font-size: 44px; font-weight: normal; letter-spacing: 2px; font-family: var(--font-h); }
 .typing-line { margin-top: 14px; color: var(--fg); font-size: 18px; min-height: 30px; }
 .typing-line .cursor { display: inline-block; width: 10px; background: var(--fg); color: var(--fg); animation: blink 1s steps(2) infinite; }
 .sub-en { margin-top: 6px; color: var(--dim); font-size: 14px; }
@@ -66,7 +77,7 @@ h1 { font-size: 44px; font-weight: normal; letter-spacing: 2px; }
 .eclipse #moon {
   position: absolute; inset: 26px; width: 188px; height: 188px;
   image-rendering: pixelated;
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.16));
+  filter: var(--moon-filter);
 }
 .eclipse-label { text-align: center; color: var(--dim); font-size: 13px; }
 .eclipse-label .task-name { color: var(--fg); font-size: 15px; }
@@ -74,24 +85,24 @@ h1 { font-size: 44px; font-weight: normal; letter-spacing: 2px; }
 
 /* ── stats ── */
 .stats {
-  display: flex; gap: 0; border: 1px solid var(--line); margin-bottom: 34px;
-  flex-wrap: wrap;
+  display: flex; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 34px;
+  flex-wrap: wrap; overflow: hidden;
 }
 .stat { flex: 1; min-width: 130px; padding: 14px 18px; border-right: 1px solid var(--line); }
 .stat:last-child { border-right: none; }
 .stat .k { color: var(--dim); font-size: 12px; }
 .stat .v { font-size: 26px; }
-.stat .v.alert { background: var(--fg); color: var(--bg); padding: 0 6px; }
+.stat .v.alert { background: var(--accent); color: var(--bg); padding: 0 6px; }
 
 /* ── panel & form ── */
-.panel { border: 1px solid var(--line); padding: 22px; margin-bottom: 30px; background: rgba(0,0,0,.72); }
+.panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 30px; background: var(--panel); }
 .panel-title { color: var(--dim); font-size: 13px; margin-bottom: 16px; }
 .panel-title::before { content: '> '; }
 form.add { display: grid; grid-template-columns: 2fr .8fr .8fr .95fr 1.25fr auto; gap: 10px; }
 #nl-hint { color: #666; font-size: 12px; min-height: 15px; padding-left: 2px; }
 input, select, textarea {
   font-family: inherit; font-size: 15px; color: var(--fg);
-  background: #0d0d0d; border: 1px solid var(--faint); padding: 9px 12px;
+  background: var(--input-bg); border: 1px solid var(--faint); border-radius: var(--radius); padding: 9px 12px;
   outline: none; width: 100%;
   color-scheme: dark;
 }
@@ -100,7 +111,7 @@ input::placeholder { color: #555; }
 button {
   font-family: inherit; font-size: 15px; cursor: pointer;
   background: transparent; color: var(--fg);
-  border: 1px solid var(--fg); padding: 9px 20px;
+  border: 1px solid var(--fg); border-radius: var(--btn-radius); padding: 9px 20px;
 }
 button:hover { background: var(--fg); color: var(--bg); }
 .note-row { grid-column: 1 / -1; }
@@ -123,9 +134,10 @@ button:hover { background: var(--fg); color: var(--bg); }
   display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px 16px;
   align-items: center;
   border: 1px solid var(--line); border-bottom: none;
-  padding: 14px 18px; background: rgba(0,0,0,.72);
+  padding: 14px 18px; background: var(--panel);
 }
-.task:last-child { border-bottom: 1px solid var(--line); }
+.task:last-child { border-bottom: 1px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); }
+.task:first-child { border-radius: var(--radius) var(--radius) 0 0; }
 .task:hover { border-color: var(--dim); }
 .task .check {
   width: 22px; height: 22px; border: 1px solid var(--dim); background: transparent;
@@ -143,12 +155,12 @@ button:hover { background: var(--fg); color: var(--bg); }
   display: inline-block; border: 1px solid var(--faint); color: var(--dim);
   font-size: 12px; padding: 0 7px; margin-right: 6px;
 }
-.tag.prio-高 { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.tag.prio-高 { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 .tag.prio-中 { color: var(--fg); border-color: var(--dim); }
 .task .cd { text-align: right; font-size: 15px; white-space: nowrap; }
 .task .cd .due-date { color: var(--dim); font-size: 12px; }
-.task .cd.urgent { background: var(--fg); color: var(--bg); padding: 2px 8px; }
-.task .cd.urgent .due-date { color: #333; }
+.task .cd.urgent { background: var(--accent); color: var(--bg); padding: 2px 8px; }
+.task .cd.urgent .due-date { color: var(--bg); opacity: .75; }
 .task .cd.overdue .cd-text { background: var(--fg); color: var(--bg); padding: 0 6px; }
 .task .cd.overdue .due-date { color: var(--dim); }
 .task .cd.done-cd { color: var(--dim); }
@@ -162,6 +174,68 @@ button:hover { background: var(--fg); color: var(--bg); }
   border: 1px dashed var(--faint); padding: 46px 20px; text-align: center; color: var(--dim);
 }
 .empty .art { font-size: 30px; margin-bottom: 10px; }
+
+/* ── themes ── */
+.ring-track { stroke: var(--ring-track); }
+.ring-fg { stroke: var(--ring-fg); }
+#stars, #moon-logo { filter: var(--invert-pixel); }
+#glow { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: none; }
+#themes { margin-left: 34px; }
+#themes a { color: var(--dim); margin-left: 14px; font-size: 13px; cursor: pointer; }
+#themes a:hover { color: var(--fg); }
+#themes a.on { color: var(--fg); }
+#themes a.on::before { content: '['; }
+#themes a.on::after { content: ']'; }
+
+body[data-theme="linear"] {
+  --bg: #08090a; --fg: #f7f8f8; --dim: #8a8f98; --faint: #3f4145; --line: rgba(255,255,255,.09);
+  --panel: #0f1011; --input-bg: #101112; --accent: #5e6ad2;
+  --ring-track: rgba(255,255,255,.12); --ring-fg: #5e6ad2;
+  --radius: 9px; --btn-radius: 999px;
+  --font: "SF Pro Display", -apple-system, "Segoe UI", sans-serif;
+  --font-h: var(--font);
+  --moon-filter: drop-shadow(0 0 24px rgba(94,106,210,.55));
+}
+body[data-theme="linear"] #glow { display: block; background:
+  radial-gradient(640px 320px at 72% -12%, rgba(94,106,210,.28), transparent 70%),
+  radial-gradient(520px 280px at 18% -12%, rgba(130,80,180,.20), transparent 70%); }
+body[data-theme="linear"] .panel, body[data-theme="linear"] .task, body[data-theme="linear"] .stats { border-width: .5px; }
+body[data-theme="linear"] button { border-color: var(--faint); }
+body[data-theme="linear"] button:hover { background: #e5e5e6; color: #08090a; border-color: #e5e5e6; }
+body[data-theme="linear"] .task .check { border-radius: 50%; }
+
+body[data-theme="anthropic"] {
+  --bg: #faf9f5; --fg: #141413; --dim: #6b6a5f; --faint: #c9c6b8; --line: #e8e6dc;
+  --panel: #f5f4ed; --input-bg: #fff; --accent: #d97757;
+  --ring-track: #e8e6dc; --ring-fg: #d97757;
+  --radius: 6px; --btn-radius: 999px;
+  --font: "SF Pro Text", -apple-system, "Segoe UI", sans-serif;
+  --font-h: Georgia, "Songti SC", serif;
+  --invert-pixel: invert(.82);
+  --moon-filter: invert(.82);
+}
+body[data-theme="anthropic"] #stars { opacity: .55; }
+body[data-theme="anthropic"] input, body[data-theme="anthropic"] select, body[data-theme="anthropic"] textarea { color-scheme: light; }
+body[data-theme="anthropic"] button { background: #f5f4ed; color: #3d3d3a; border-color: #e8e6dc; }
+body[data-theme="anthropic"] button:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+body[data-theme="anthropic"] .task, body[data-theme="anthropic"] .panel, body[data-theme="anthropic"] .stats { box-shadow: 0 1px 3px rgba(60,50,30,.06); }
+
+body[data-theme="vercel"] {
+  --bg: #fafafa; --fg: #171717; --dim: #666; --faint: #d4d4d4; --line: #ebebeb;
+  --panel: #fff; --input-bg: #fff; --accent: #171717;
+  --ring-track: #ebebeb; --ring-fg: #171717;
+  --radius: 6px; --btn-radius: 6px;
+  --font: -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-h: var(--font);
+  --invert-pixel: invert(.85);
+  --moon-filter: invert(.85);
+}
+body[data-theme="vercel"] #stars { opacity: .5; }
+body[data-theme="vercel"] input, body[data-theme="vercel"] select, body[data-theme="vercel"] textarea { color-scheme: light; }
+body[data-theme="vercel"] button { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+body[data-theme="vercel"] button:hover { opacity: .82; background: var(--fg); color: var(--bg); }
+body[data-theme="vercel"] .panel, body[data-theme="vercel"] .task, body[data-theme="vercel"] .stats { box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+body[data-theme="vercel"] .task .check { border-radius: 2px; }
 
 /* ── widget compact mode (when embedded as desktop widget) ── */
 body.widget .hero, body.widget footer, body.widget nav { display: none; }
@@ -197,6 +271,7 @@ footer a { color: #555; }
 </head>
 <body>
 <canvas id="stars"></canvas>
+<div id="glow"></div>
 <div class="page">
 
   <header>
@@ -204,6 +279,9 @@ footer a { color: #555; }
     <nav>
       <a href="#add-panel">新建任务</a>
       <a href="#list">任务列表</a>
+      <span id="themes">
+        <a data-t="mission">像素</a><a data-t="linear">工程</a><a data-t="anthropic">奶油</a><a data-t="vercel">极简</a>
+      </span>
       <a href="https://careers.kimi.com" target="_blank" rel="noopener">style: careers.kimi</a>
     </nav>
   </header>
@@ -217,8 +295,8 @@ footer a { color: #555; }
     <div class="eclipse-wrap">
       <div class="eclipse">
         <svg width="240" height="240" viewBox="0 0 240 240">
-          <circle cx="120" cy="120" r="112" fill="none" stroke="#2c2c2c" stroke-width="2"/>
-          <circle id="ring" cx="120" cy="120" r="112" fill="none" stroke="#e8e8e8" stroke-width="2"
+          <circle class="ring-track" cx="120" cy="120" r="112" fill="none" stroke="#2c2c2c" stroke-width="2"/>
+          <circle id="ring" class="ring-fg" cx="120" cy="120" r="112" fill="none" stroke="#e8e8e8" stroke-width="2"
                   stroke-dasharray="703.7" stroke-dashoffset="703.7" stroke-linecap="butt"/>
         </svg>
         <canvas id="moon" width="72" height="72"></canvas>
@@ -704,12 +782,22 @@ function setDefaultDue() {
   const pad = n => String(n).padStart(2, '0');
   $('#f-due').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+/* theme switcher */
+function setTheme(t) {
+  document.body.dataset.theme = t;
+  try { localStorage.setItem('ddl-theme', t); } catch (e) {}
+  document.querySelectorAll('#themes a').forEach(a => a.classList.toggle('on', a.dataset.t === t));
+}
+document.querySelectorAll('#themes a').forEach(a => a.addEventListener('click', () => setTheme(a.dataset.t)));
+setTheme((() => { try { return localStorage.getItem('ddl-theme') || 'mission'; } catch (e) { return 'mission'; } })());
+
 setDefaultDue();
 load().then(renderAll);
 setInterval(() => { tickList(); tickEclipse(); }, 1000);
 
 /* cross-client sync (browser ↔ desktop widget) */
 if (API) setInterval(async () => {
+  try { const t = localStorage.getItem('ddl-theme'); if (t && t !== document.body.dataset.theme) setTheme(t); } catch (e) {}
   if (save._t) return;
   try {
     const r = await fetch(API, { cache: 'no-store' });

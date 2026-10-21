@@ -10,40 +10,62 @@
   font-display: swap;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #000; --fg: #e8e8e8; --dim: #8a8a8a; --faint: #3a3a3a; --line: #2c2c2c;
+  --panel: #000; --accent: #e8e8e8; --radius: 0px;
+  --font: 'Fusion Pixel', monospace;
+}
+body[data-theme="linear"] {
+  --bg: #08090a; --fg: #f7f8f8; --dim: #8a8f98; --faint: #3f4145; --line: rgba(255,255,255,.09);
+  --panel: #0f1011; --accent: #5e6ad2; --radius: 9px;
+  --font: "SF Pro Display", -apple-system, "Segoe UI", sans-serif;
+}
+body[data-theme="anthropic"] {
+  --bg: #faf9f5; --fg: #141413; --dim: #6b6a5f; --faint: #c9c6b8; --line: #e8e6dc;
+  --panel: #f5f4ed; --accent: #d97757; --radius: 6px;
+  --font: "SF Pro Text", -apple-system, "Segoe UI", sans-serif;
+}
+body[data-theme="vercel"] {
+  --bg: #fafafa; --fg: #171717; --dim: #666; --faint: #d4d4d4; --line: #ebebeb;
+  --panel: #fff; --accent: #171717; --radius: 6px;
+  --font: -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+}
 body {
-  background: #000; color: #e8e8e8;
-  font-family: 'Fusion Pixel', monospace; font-size: 13px; line-height: 1.5;
+  background: var(--panel); color: var(--fg);
+  font-family: var(--font); font-size: 13px; line-height: 1.5;
   padding: 10px 12px 8px;
 }
 .head {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding-bottom: 6px; border-bottom: 1px solid #2c2c2c; margin-bottom: 4px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px;
 }
 .head .name { font-size: 13px; }
 .head .name::before { content: '◐ '; }
-.head .count { color: #8a8a8a; font-size: 11px; }
-.head .count .od { background: #e8e8e8; color: #000; padding: 0 4px; }
+.head .count { color: var(--dim); font-size: 11px; }
+.head .count .od { background: var(--accent); color: var(--bg); padding: 0 4px; }
 @keyframes blink { 50% { opacity: 0; } }
 .blink { animation: blink 1s steps(2) infinite; }
 
 .row {
   display: flex; align-items: baseline; gap: 7px;
-  padding: 5px 2px; border-bottom: 1px solid #1d1d1d;
+  padding: 5px 2px; border-bottom: 1px solid var(--line);
 }
 .row:last-child { border-bottom: none; }
-.row .mark { font-size: 10px; color: #8a8a8a; flex: none; min-width: 12px; text-align: center; }
-.row .mark.hi { color: #e8e8e8; }
+.row .mark { font-size: 10px; color: var(--dim); flex: none; min-width: 12px; text-align: center; }
+.row .mark.hi { color: var(--fg); }
 .row .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.row .cd { flex: none; font-size: 12px; color: #e8e8e8; }
-.row.urgent .cd { background: #e8e8e8; color: #000; padding: 0 4px; }
-.row.overdue .t { color: #8a8a8a; }
-.row.overdue .cd { background: #e8e8e8; color: #000; padding: 0 4px; }
+.row .cd { flex: none; font-size: 12px; color: var(--fg); }
+.row.urgent .cd { background: var(--accent); color: var(--bg); padding: 0 4px; }
+.row.overdue .t { color: var(--dim); }
+.row.overdue .cd { background: var(--accent); color: var(--bg); padding: 0 4px; }
 
 .foot {
-  margin-top: 4px; padding-top: 5px; border-top: 1px solid #1d1d1d;
-  color: #555; font-size: 10px; display: flex; justify-content: space-between;
+  margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line);
+  color: var(--dim); font-size: 10px; display: flex; justify-content: space-between; opacity: .7;
 }
-.empty { color: #8a8a8a; text-align: center; padding: 14px 0 10px; }
+.empty { color: var(--dim); text-align: center; padding: 14px 0 10px; }
+#theme-btn { cursor: pointer; }
+#theme-btn:hover { color: var(--fg); }
 </style>
 </head>
 <body>
@@ -54,12 +76,29 @@ body {
 <div id="rows"></div>
 <div class="foot">
   <span id="done-count"></span>
-  <span>管理 → 127.0.0.1:8791</span>
+  <span><span id="theme-btn" title="点击切换皮肤">皮肤:像素</span> · 管理 → 127.0.0.1:8791</span>
 </div>
 
 <script>
 'use strict';
 let tasks = null;
+
+const THEME_NAMES = { mission: '像素', linear: '工程', anthropic: '奶油', vercel: '极简' };
+const THEME_ORDER = ['mission', 'linear', 'anthropic', 'vercel'];
+function currentTheme() { try { return localStorage.getItem('ddl-theme') || 'mission'; } catch (e) { return 'mission'; } }
+function updateThemeBtn() { document.getElementById('theme-btn').textContent = '皮肤:' + THEME_NAMES[currentTheme()]; }
+
+function applyTheme() {
+  const t = currentTheme();
+  if (document.body.dataset.theme !== t) document.body.dataset.theme = t;
+  updateThemeBtn();
+}
+applyTheme();
+document.getElementById('theme-btn').addEventListener('click', () => {
+  const next = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme()) + 1) % THEME_ORDER.length];
+  try { localStorage.setItem('ddl-theme', next); } catch (e) {}
+  applyTheme();
+});
 
 function fmt(due, now) {
   const diff = due - now, abs = Math.abs(diff);
@@ -109,6 +148,7 @@ function render() {
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 async function poll() {
+  applyTheme();
   try {
     const r = await fetch('http://127.0.0.1:8791/api/tasks', { cache: 'no-store' });
     if (r.ok) { const j = await r.json(); if (Array.isArray(j)) tasks = j; }
