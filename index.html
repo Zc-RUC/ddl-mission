@@ -367,7 +367,9 @@ const KEY = 'ddl-mission-v1';
 let tasks = [];
 let filter = 'all';
 
-const API = 'http://127.0.0.1:8791/api/tasks';
+const API = (location.protocol === 'file:' || location.hostname.endsWith('github.io'))
+  ? 'http://127.0.0.1:8791/api/tasks'
+  : '/api/tasks';
 
 async function load() {
   let remote = null, local = null;

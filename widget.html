@@ -150,7 +150,7 @@ function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<'
 async function poll() {
   applyTheme();
   try {
-    const r = await fetch('http://127.0.0.1:8791/api/tasks', { cache: 'no-store' });
+    const r = await fetch('/api/tasks', { cache: 'no-store' });
     if (r.ok) { const j = await r.json(); if (Array.isArray(j)) tasks = j; }
   } catch (e) {}
 }

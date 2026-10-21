@@ -170,4 +170,4 @@ def notifier_loop():
 
 if __name__ == '__main__':
     threading.Thread(target=notifier_loop, daemon=True).start()
-    ThreadingHTTPServer(('127.0.0.1', 8791), Handler).serve_forever()
+    ThreadingHTTPServer(('0.0.0.0', 8791), Handler).serve_forever()
