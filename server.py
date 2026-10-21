@@ -14,6 +14,7 @@ LOCK = threading.Lock()
 
 
 ALLOWED_ORIGIN_PREFIXES = ('http://127.0.0.1', 'http://localhost')
+ALLOWED_ORIGINS = ('https://zc-ruc.github.io',)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -21,11 +22,13 @@ class Handler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=ROOT, **kwargs)
 
     def log_message(self, fmt, *args):
-        pass
+        import sys
+        sys.stderr.write('%s "%s"\n' % (self.log_date_time_string(), fmt % args))
 
     def _cors_origin(self):
         origin = self.headers.get('Origin') if self.headers else None
-        if origin == 'null' or (origin and origin.startswith(ALLOWED_ORIGIN_PREFIXES)):
+        if origin == 'null' or origin in ALLOWED_ORIGINS or \
+                (origin and origin.startswith(ALLOWED_ORIGIN_PREFIXES)):
             return origin
         return None
 
@@ -33,6 +36,7 @@ class Handler(SimpleHTTPRequestHandler):
         o = self._cors_origin()
         if o:
             self.send_header('Access-Control-Allow-Origin', o)
+            self.send_header('Access-Control-Allow-Private-Network', 'true')
             self.send_header('Vary', 'Origin')
 
     def do_OPTIONS(self):
@@ -42,6 +46,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', o)
             self.send_header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
             self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            self.send_header('Access-Control-Allow-Private-Network', 'true')
             self.send_header('Vary', 'Origin')
         self.send_header('Content-Length', '0')
         self.end_headers()
