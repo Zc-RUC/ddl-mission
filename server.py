@@ -22,8 +22,7 @@ class Handler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=ROOT, **kwargs)
 
     def log_message(self, fmt, *args):
-        import sys
-        sys.stderr.write('%s "%s"\n' % (self.log_date_time_string(), fmt % args))
+        pass
 
     def _cors_origin(self):
         origin = self.headers.get('Origin') if self.headers else None
