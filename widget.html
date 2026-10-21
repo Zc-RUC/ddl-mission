@@ -88,16 +88,19 @@ const THEME_ORDER = ['mission', 'linear', 'anthropic', 'vercel'];
 function currentTheme() { try { return localStorage.getItem('ddl-theme') || 'mission'; } catch (e) { return 'mission'; } }
 function updateThemeBtn() { document.getElementById('theme-btn').textContent = '皮肤:' + THEME_NAMES[currentTheme()]; }
 
-function applyTheme() {
+function applyTheme(push) {
   const t = currentTheme();
   if (document.body.dataset.theme !== t) document.body.dataset.theme = t;
   updateThemeBtn();
+  if (push) {
+    fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ theme: t }) }).catch(() => {});
+  }
 }
-applyTheme();
+applyTheme(false);
 document.getElementById('theme-btn').addEventListener('click', () => {
   const next = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme()) + 1) % THEME_ORDER.length];
   try { localStorage.setItem('ddl-theme', next); } catch (e) {}
-  applyTheme();
+  applyTheme(true);
 });
 
 function fmt(due, now) {
@@ -148,10 +151,20 @@ function render() {
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 async function poll() {
-  applyTheme();
+  applyTheme(false);
   try {
     const r = await fetch('/api/tasks', { cache: 'no-store' });
     if (r.ok) { const j = await r.json(); if (Array.isArray(j)) tasks = j; }
+  } catch (e) {}
+  try {
+    const rs = await fetch('/api/settings', { cache: 'no-store' });
+    if (rs.ok) {
+      const s = await rs.json();
+      if (s && s.theme && s.theme !== currentTheme()) {
+        try { localStorage.setItem('ddl-theme', s.theme); } catch (e) {}
+        applyTheme(false);
+      }
+    }
   } catch (e) {}
 }
 poll();

@@ -10,6 +10,7 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(ROOT, 'tasks.json')
+SETTINGS = os.path.join(ROOT, 'settings.json')
 LOCK = threading.Lock()
 
 
@@ -61,7 +62,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path.split('?')[0] == '/api/tasks':
+        path = self.path.split('?')[0]
+        if path == '/api/tasks':
             with LOCK:
                 try:
                     with open(DATA, encoding='utf-8') as f:
@@ -69,27 +71,59 @@ class Handler(SimpleHTTPRequestHandler):
                 except Exception:
                     data = []
             self._send_json(data if isinstance(data, list) else [])
+        elif path == '/api/settings':
+            with LOCK:
+                try:
+                    with open(SETTINGS, encoding='utf-8') as f:
+                        data = json.load(f)
+                except Exception:
+                    data = {}
+            self._send_json(data if isinstance(data, dict) else {})
         else:
             super().do_GET()
 
     def do_PUT(self):
-        if self.path.split('?')[0] != '/api/tasks':
+        path = self.path.split('?')[0]
+        if path == '/api/tasks':
+            try:
+                n = int(self.headers.get('Content-Length') or 0)
+                data = json.loads(self.rfile.read(n) or b'[]')
+                if not isinstance(data, list):
+                    raise ValueError('not a list')
+            except Exception:
+                self._send_json({'ok': False}, 400)
+                return
+            with LOCK:
+                fd, tmp = tempfile.mkstemp(dir=ROOT, suffix='.json')
+                with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False)
+                os.replace(tmp, DATA)
+            self._send_json({'ok': True})
+        elif path == '/api/settings':
+            try:
+                n = int(self.headers.get('Content-Length') or 0)
+                data = json.loads(self.rfile.read(n) or b'{}')
+                if not isinstance(data, dict):
+                    raise ValueError('not a dict')
+            except Exception:
+                self._send_json({'ok': False}, 400)
+                return
+            with LOCK:
+                try:
+                    with open(SETTINGS, encoding='utf-8') as f:
+                        cur = json.load(f)
+                except Exception:
+                    cur = {}
+                if not isinstance(cur, dict):
+                    cur = {}
+                cur.update(data)
+                fd, tmp = tempfile.mkstemp(dir=ROOT, suffix='.json')
+                with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                    json.dump(cur, f, ensure_ascii=False)
+                os.replace(tmp, SETTINGS)
+            self._send_json({'ok': True})
+        else:
             self.send_error(404)
-            return
-        try:
-            n = int(self.headers.get('Content-Length') or 0)
-            data = json.loads(self.rfile.read(n) or b'[]')
-            if not isinstance(data, list):
-                raise ValueError('not a list')
-        except Exception:
-            self._send_json({'ok': False}, 400)
-            return
-        with LOCK:
-            fd, tmp = tempfile.mkstemp(dir=ROOT, suffix='.json')
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False)
-            os.replace(tmp, DATA)
-        self._send_json({'ok': True})
 
 
 NOTIFY_STATE = os.path.join(ROOT, 'notify-state.json')

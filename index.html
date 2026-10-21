@@ -370,6 +370,7 @@ let filter = 'all';
 const API = (location.protocol === 'file:' || location.hostname.endsWith('github.io'))
   ? 'http://127.0.0.1:8791/api/tasks'
   : '/api/tasks';
+const API_SETTINGS = API.replace(/tasks$/, 'settings');
 
 async function load() {
   let remote = null, local = null;
@@ -385,6 +386,12 @@ async function load() {
   else if (remote) tasks = remote;
   else tasks = [];
   save();
+  if (API) {
+    try {
+      const rs = await fetch(API_SETTINGS, { cache: 'no-store' });
+      if (rs.ok) { const s = await rs.json(); if (s && s.theme) setTheme(s.theme, false); }
+    } catch (e) {}
+  }
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {}
@@ -784,13 +791,19 @@ function setDefaultDue() {
   $('#f-due').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 /* theme switcher */
-function setTheme(t) {
+function setTheme(t, push) {
   document.body.dataset.theme = t;
   try { localStorage.setItem('ddl-theme', t); } catch (e) {}
   document.querySelectorAll('#themes a').forEach(a => a.classList.toggle('on', a.dataset.t === t));
+  if (push !== false && API) {
+    clearTimeout(setTheme._t);
+    setTheme._t = setTimeout(() => {
+      fetch(API_SETTINGS, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ theme: t }) }).catch(() => {});
+    }, 200);
+  }
 }
 document.querySelectorAll('#themes a').forEach(a => a.addEventListener('click', () => setTheme(a.dataset.t)));
-setTheme((() => { try { return localStorage.getItem('ddl-theme') || 'mission'; } catch (e) { return 'mission'; } })());
+setTheme((() => { try { return localStorage.getItem('ddl-theme') || 'mission'; } catch (e) { return 'mission'; } })(), false);
 
 setDefaultDue();
 load().then(renderAll);
@@ -798,7 +811,7 @@ setInterval(() => { tickList(); tickEclipse(); }, 1000);
 
 /* cross-client sync (browser ↔ desktop widget) */
 if (API) setInterval(async () => {
-  try { const t = localStorage.getItem('ddl-theme'); if (t && t !== document.body.dataset.theme) setTheme(t); } catch (e) {}
+  try { const t = localStorage.getItem('ddl-theme'); if (t && t !== document.body.dataset.theme) setTheme(t, false); } catch (e) {}
   if (save._t) return;
   try {
     const r = await fetch(API, { cache: 'no-store' });
@@ -808,6 +821,13 @@ if (API) setInterval(async () => {
       tasks = j;
       try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {}
       renderAll();
+    }
+  } catch (e) {}
+  try {
+    const rs = await fetch(API_SETTINGS, { cache: 'no-store' });
+    if (rs.ok) {
+      const s = await rs.json();
+      if (s && s.theme && s.theme !== document.body.dataset.theme) setTheme(s.theme, false);
     }
   } catch (e) {}
 }, 5000);

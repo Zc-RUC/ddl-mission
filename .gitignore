@@ -1,4 +1,5 @@
 tasks.json
 tasks.backup.json
 notify-state.json
+settings.json
 .DS_Store
