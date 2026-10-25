@@ -49,7 +49,9 @@ body {
 .row {
   display: flex; align-items: baseline; gap: 7px;
   padding: 5px 2px; border-bottom: 1px solid var(--line);
+  cursor: pointer;
 }
+.row:hover { background: rgba(127,127,127,.10); }
 .row:last-child { border-bottom: none; }
 .row .mark { font-size: 10px; color: var(--dim); flex: none; min-width: 12px; text-align: center; }
 .row .mark.hi { color: var(--fg); }
@@ -66,6 +68,9 @@ body {
 .empty { color: var(--dim); text-align: center; padding: 14px 0 10px; }
 #theme-btn { cursor: pointer; }
 #theme-btn:hover { color: var(--fg); }
+#open-app { cursor: pointer; }
+#open-app:hover { color: var(--fg); }
+.empty { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -76,7 +81,7 @@ body {
 <div id="rows"></div>
 <div class="foot">
   <span id="done-count"></span>
-  <span><span id="theme-btn" title="点击切换皮肤">皮肤:像素</span> · 管理 → 127.0.0.1:8791</span>
+  <span><span id="theme-btn" title="点击切换皮肤">皮肤:像素</span> · <span id="open-app" title="打开完整网页版">管理 → 127.0.0.1:8791</span></span>
 </div>
 
 <script>
@@ -171,6 +176,10 @@ poll();
 setInterval(poll, 5000);
 setInterval(render, 1000);
 addEventListener('load', render);
+
+function openApp() { window.open('http://127.0.0.1:8791', '_blank'); }
+document.getElementById('rows').addEventListener('click', openApp);
+document.getElementById('open-app').addEventListener('click', openApp);
 </script>
 </body>
 </html>
