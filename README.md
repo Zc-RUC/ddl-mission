@@ -30,8 +30,14 @@ open http://127.0.0.1:8791   # 打开网页版
 ## 桌面小组件（macOS，可选）
 
 1. 安装 [Übersicht](https://tracesof.net/uebersicht/)（免费开源）
-2. 把 `ubersicht/ddl-mission.widget` 整个文件夹复制到
-   `~/Library/Application Support/Übersicht/widgets/`
+2. 一条命令装好 widget（自动建目录并下载）：
+
+```bash
+mkdir -p ~/Library/Application\ Support/Übersicht/widgets/ddl-mission.widget && \
+curl -L https://raw.githubusercontent.com/Zc-RUC/ddl-mission/main/ubersicht-widget-index.jsx \
+  -o ~/Library/Application\ Support/Übersicht/widgets/ddl-mission.widget/index.jsx
+```
+
 3. Übersicht 菜单栏图标 → Refresh All Widgets
 
 小组件说明：顶部 `···` 条拖动换位；底栏「皮肤」循环换肤；点任务行跳转网页版（经由 Übersicht 内置 `/run/` 端点拉起系统默认浏览器）。
@@ -65,7 +71,7 @@ open http://127.0.0.1:8791   # 打开网页版
 
 - 纯原生 HTML/CSS/JS，零依赖零构建，单文件 `index.html`（像素字体 Fusion Pixel 12px Mono，SIL OFL 协议，已内嵌）
 - `server.py`：仅标准库（http.server），静态托管 + JSON 存储 + 通知值守
-- `widget.html`：小组件精简视图；`ubersicht/`：Übersicht widget 外壳（拖动、自适应高度、跳转）
+- `widget.html`：小组件精简视图；`ubersicht-widget-index.jsx`：Übersicht widget 外壳（拖动、自适应高度、跳转）
 
 ## License
 
