@@ -1,3 +1,5 @@
+**[English](README.en.md) | 中文**
+
 # DDL.MISSION 控制舱
 
 像素太空风的 DDL（截止日期）管理器 —— 单文件网页应用 + 本地同步服务器 + macOS 桌面小组件 + GitHub Pages 在线版。
